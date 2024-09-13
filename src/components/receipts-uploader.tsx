@@ -1,16 +1,40 @@
-import React, { useState, type ChangeEvent } from 'react'
+import React, { useEffect, useState, type ChangeEvent } from 'react'
+import axios from 'axios'
+
 import { Input } from './ui/input'
 import { Button } from './ui/button'
 import { UploadIcon } from '@radix-ui/react-icons'
 import type { ReceiptAsMessage } from '@/data/receipts'
-import axios from 'axios'
+
 interface ReceiptsUploaderProps {
   onReceiptsChange: React.Dispatch<React.SetStateAction<ReceiptAsMessage[]>>
+  setTableSize: React.Dispatch<React.SetStateAction<number>>
 }
 
-export function ReceiptsUploader({ onReceiptsChange } : ReceiptsUploaderProps) {
+interface HandleStateChangeUpload {
+  kind: 'UPLOAD'
+  data: ReceiptAsMessage[]
+}
+
+interface HandleStateChangeProcess {
+  kind: 'PROCESS'
+  data: ReceiptAsMessage
+}
+
+type HandleStateChangeProps = HandleStateChangeUpload | HandleStateChangeProcess
+
+export function ReceiptsUploader({ onReceiptsChange, setTableSize } : ReceiptsUploaderProps) {
   const [pdfFiles, setPdfFiles] = useState<File[] | null>(null)
-  // const [ws, setWs] = useState<WebSocket | null>(null)
+  useEffect(() => {
+    const socket = new WebSocket(`ws://${import.meta.env.VITE_BASE_URL}/websocket`)
+    socket.onopen = () => {
+      console.log('Connected')
+      socket.onmessage = (event) => {
+        const { kind, data } = JSON.parse(event.data)
+        handleStateChange({ data, kind })
+      }
+    }
+  }, [pdfFiles])
 
   const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
     if (!event.target.files) {
@@ -27,28 +51,46 @@ export function ReceiptsUploader({ onReceiptsChange } : ReceiptsUploaderProps) {
     }
   }
 
-  const handleStateChange = (receivedData: ReceiptAsMessage[]) => {
-    // const parsedData:ReceiptAsMessage = JSON.parse(receivedData)
-    receivedData.forEach((data) => {
-      onReceiptsChange((previousReceipts) => {
-        const existingReceiptIndex =
-          previousReceipts.findIndex(receipt => receipt.id === data.id)
-
-        if (existingReceiptIndex !== -1) {
-          const updatedState = [...previousReceipts]
-          updatedState[existingReceiptIndex] = data
-          return updatedState
-        } else {
-          return [...previousReceipts, data]
-        }
-      })
-    },
-    )
+  const handleStateChange = ({ data, kind }: HandleStateChangeProps) => {
+    switch (kind) {
+      case 'UPLOAD':
+        data.forEach((d) => {
+          onReceiptsChange((previousReceipts) => {
+            const existingReceiptIndex =
+              previousReceipts.findIndex(receipt => {
+                return receipt.id === d.id
+              })
+            if (existingReceiptIndex !== -1) {
+              const updatedState = [...previousReceipts]
+              updatedState[existingReceiptIndex] = d
+              return updatedState
+            } else {
+              return [...previousReceipts, d]
+            }
+          })
+        })
+        break
+      case 'PROCESS':
+        onReceiptsChange((previousReceipts) => {
+          const existingReceiptIndex =
+          previousReceipts.findIndex(receipt => {
+            return receipt.id === data.id
+          })
+          if (existingReceiptIndex !== -1) {
+            const updatedState = [...previousReceipts]
+            updatedState[existingReceiptIndex] = data
+            return updatedState
+          } else {
+            return [...previousReceipts, data]
+          }
+        })
+        break
+    }
   }
 
   const handleUploadV2 = () => {
     if (pdfFiles) {
-      const socket = new WebSocket('ws://localhost:3337/websocket')
+      const socket = new WebSocket(`ws://${import.meta.env.VITE_BASE_URL}/websocket`)
       socket.onopen = () => {
         const filePromises = Array.from(pdfFiles).map(file => {
           return new Promise((resolve, reject) => {
@@ -97,7 +139,7 @@ export function ReceiptsUploader({ onReceiptsChange } : ReceiptsUploaderProps) {
       for (const file of pdfFiles) {
         console.log(file.arrayBuffer)
       }
-      const socket = new WebSocket('ws://localhost:3336/websocket')
+      const socket = new WebSocket(`ws://${import.meta.env.VITE_BASE_URL}/websocket`)
 
       socket.onopen = () => {
         console.log('files', pdfFiles)
@@ -137,16 +179,10 @@ export function ReceiptsUploader({ onReceiptsChange } : ReceiptsUploaderProps) {
   const handleUploadV3 = () => {
     console.log('inside')
     if (pdfFiles) {
+      setTableSize(pdfFiles.length)
       console.log('---')
-      // const api = axios.create({
-      //   baseURL: 'http://localhost:3336',
-      //   headers: {
-      //     'Content-Type': 'multipart/form-data',
-      //   },
-      // })
-
       axios({
-        baseURL: 'http://localhost:3338/upload',
+        baseURL: `http://${import.meta.env.VITE_BASE_URL}/upload`,
         method: 'post',
         data: pdfFiles,
         headers: {

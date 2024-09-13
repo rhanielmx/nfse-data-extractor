@@ -2,18 +2,30 @@ import { DataTable } from '@/components/data-table'
 import { ReceiptsUploader } from '@/components/receipts-uploader'
 
 import { columns } from '@/data/columns'
-import { type ReceiptAsMessage } from '@/data/receipts'
-import { useState } from 'react'
+import { ReceiptsContext, useReceipts } from '@/contexts/useReceipts'
+import { useContext, useEffect, useState } from 'react'
 
 export default function Home() {
-  const [receipts, setReceipts] = useState<ReceiptAsMessage[]>([])
-  // const [files, setFiles] = useState<FileList>()
+  const { receipts, setReceipts } = useContext(ReceiptsContext)
+  const [tableSize, setTableSize] = useState(0)
 
-  // const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
-  //   if (e.target.files) {
-  //     setFiles(e.target.files)
-  //   }
-  // }
+  // useEffect(() => {
+  //   setReceipts([])
+  // }, [setReceipts])
+
+  const handleTeste = (id: string) => {
+    const indexToChange = receipts.findIndex((receipt) => receipt.id === id)
+
+    if (indexToChange !== -1) {
+      const currentReceipts = [...receipts]
+      // const updatedReceipt = { ...currentReceipts, issValueInCents: 100 }
+      currentReceipts[indexToChange] = {
+        ...currentReceipts[indexToChange],
+        issValueInCents: 12345,
+      }
+      setReceipts(currentReceipts)
+    }
+  }
 
   return (
     <main className="hidden h-full flex-1 flex-col space-y-8 p-8 md:flex">
@@ -25,17 +37,22 @@ export default function Home() {
           </p>
         </div>
       </div>
+      <DataTable
+        data={receipts.length > 0
+          ? receipts
+          : Array(tableSize).fill({})}
+        columns={columns}
+        handleClick={console.log}
+      />
+      {receipts.length === 0 && (
+        <section className="flex flex-col flex-1 items-center justify-center">
+          <ReceiptsUploader
+            onReceiptsChange={setReceipts}
+            setTableSize={setTableSize}
+          />
 
-      {receipts.length > 0
-        ? (
-          <DataTable data={receipts} columns={columns} />
-          )
-        : (
-          <section className="flex flex-col flex-1 items-center justify-center">
-            <ReceiptsUploader onReceiptsChange={setReceipts} />
-          </section>
-          )}
-
+        </section>
+      )}
     </main>
   )
 }

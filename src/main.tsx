@@ -4,9 +4,12 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 
 import { App } from './App.tsx'
+import { ReceiptsProvider } from './contexts/useReceipts.tsx'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <App />
+    <ReceiptsProvider>
+      <App />
+    </ReceiptsProvider>
   </StrictMode>,
 )

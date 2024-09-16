@@ -20,6 +20,7 @@ import {
   Table,
   TableBody,
   TableCell,
+  TableFooter,
   TableHead,
   TableHeader,
   TableRow,
@@ -33,13 +34,13 @@ import type { Receipt } from '@/data/receipts'
 interface DataTableProps<TData extends Receipt, TValue> {
   columns: ColumnDef<TData, TValue>[]
   data: TData[]
-  handleClick: any
+  handleButtonDisable: React.Dispatch<React.SetStateAction<boolean>>
 }
 
 export function DataTable<TData extends Receipt, TValue>({
   columns,
   data,
-  handleClick,
+  handleButtonDisable,
 }: DataTableProps<TData, TValue>) {
   const [rowSelection, setRowSelection] = React.useState({})
   const [columnVisibility, setColumnVisibility] =
@@ -70,6 +71,10 @@ export function DataTable<TData extends Receipt, TValue>({
     getFacetedRowModel: getFacetedRowModel(),
     getFacetedUniqueValues: getFacetedUniqueValues(),
   })
+
+  React.useEffect(() => {
+    handleButtonDisable(table.getIsAllRowsSelected())
+  }, [table])
 
   return (
     <div className="space-y-4">
@@ -127,6 +132,26 @@ export function DataTable<TData extends Receipt, TValue>({
                 </TableRow>
                 )}
           </TableBody>
+
+          <TableFooter>
+            {table.getFooterGroups().map((footerGroup) => (
+              <TableRow key={footerGroup.id}>
+                {footerGroup.headers.map((footer) => {
+                  return (
+                    <TableHead key={footer.id} colSpan={footer.colSpan}>
+                      {footer.isPlaceholder
+                        ? null
+                        : flexRender(
+                          footer.column.columnDef.footer,
+                          footer.getContext(),
+                        )}
+                    </TableHead>
+                  )
+                })}
+              </TableRow>
+            ))}
+          </TableFooter>
+
         </Table>
       </div>
       <DataTablePagination table={table} />

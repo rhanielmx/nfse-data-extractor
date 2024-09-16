@@ -22,11 +22,19 @@ interface DataTablePaginationProps<TData> {
 export function DataTablePagination<TData>({
   table,
 }: DataTablePaginationProps<TData>) {
+  const amountOfFilteredSelectedRows =
+    table.getFilteredSelectedRowModel().rows.length
+  const totalAmountOfRows = table.getFilteredRowModel().rows.length
+  const currentPage = table.getPageCount() > 0
+    ? table.getState().pagination.pageIndex + 1
+    : 0
+  const pageCount = table.getPageCount()
+
   return (
     <div className="flex items-center justify-between px-2">
       <div className="flex-1 text-sm text-muted-foreground">
-        {table.getFilteredSelectedRowModel().rows.length} de{' '}
-        {table.getFilteredRowModel().rows.length} notas(s) selecionadas.
+        {amountOfFilteredSelectedRows} de{' '}
+        {totalAmountOfRows} notas(s) selecionadas.
       </div>
       <div className="flex items-center space-x-6 lg:space-x-8">
         <div className="flex items-center space-x-2">
@@ -49,9 +57,12 @@ export function DataTablePagination<TData>({
             </SelectContent>
           </Select>
         </div>
-        <div className="flex w-[100px] items-center justify-center text-sm font-medium">
-          Página {table.getState().pagination.pageIndex + 1} de{' '}
-          {table.getPageCount()}
+        <div
+          className="flex w-[100px] items-center justify-center
+            text-sm font-medium"
+        >
+          Página {currentPage} de{' '}
+          {pageCount}
         </div>
         <div className="flex items-center space-x-2">
           <Button

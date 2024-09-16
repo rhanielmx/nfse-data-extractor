@@ -2,30 +2,14 @@ import { DataTable } from '@/components/data-table'
 import { ReceiptsUploader } from '@/components/receipts-uploader'
 
 import { columns } from '@/data/columns'
-import { ReceiptsContext, useReceipts } from '@/contexts/useReceipts'
-import { useContext, useEffect, useState } from 'react'
+import { ReceiptsContext } from '@/contexts/useReceipts'
+import { useContext, useState } from 'react'
+import { Button } from '@/components/ui/button'
 
 export default function Home() {
   const { receipts, setReceipts } = useContext(ReceiptsContext)
   const [tableSize, setTableSize] = useState(0)
-
-  // useEffect(() => {
-  //   setReceipts([])
-  // }, [setReceipts])
-
-  const handleTeste = (id: string) => {
-    const indexToChange = receipts.findIndex((receipt) => receipt.id === id)
-
-    if (indexToChange !== -1) {
-      const currentReceipts = [...receipts]
-      // const updatedReceipt = { ...currentReceipts, issValueInCents: 100 }
-      currentReceipts[indexToChange] = {
-        ...currentReceipts[indexToChange],
-        issValueInCents: 12345,
-      }
-      setReceipts(currentReceipts)
-    }
-  }
+  const [isButtonDisabled, setIsButtonDisable] = useState(false)
 
   return (
     <main className="hidden h-full flex-1 flex-col space-y-8 p-8 md:flex">
@@ -42,17 +26,25 @@ export default function Home() {
           ? receipts
           : Array(tableSize).fill({})}
         columns={columns}
-        handleClick={console.log}
+        handleButtonDisable={setIsButtonDisable}
       />
-      {receipts.length === 0 && (
-        <section className="flex flex-col flex-1 items-center justify-center">
-          <ReceiptsUploader
-            onReceiptsChange={setReceipts}
-            setTableSize={setTableSize}
-          />
-
-        </section>
-      )}
+      <section className="flex flex-col flex-1 items-center justify-center">
+        {(receipts.length === 0)
+          ? (
+            <ReceiptsUploader
+              onReceiptsChange={setReceipts}
+              setTableSize={setTableSize}
+            />
+            )
+          : (
+            <Button
+              disabled={isButtonDisabled}
+              onClick={() => console.log(isButtonDisabled)}
+            >
+              Enviar Notas
+            </Button>
+            )}
+      </section>
     </main>
   )
 }

@@ -1,14 +1,15 @@
-import type { ColumnDef } from '@tanstack/react-table'
+import type { ColumnDef, Row } from '@tanstack/react-table'
 import type { ReceiptAsMessage } from './receipts'
 import { Checkbox } from '@/components/ui/checkbox'
 import { DataTableColumnHeader } from '@/components/data-table-colum-header'
 import { Skeleton } from '@/components/ui/skeleton'
 
-import { UploadIcon, ClockIcon, CheckCircledIcon } from '@radix-ui/react-icons'
+import { UploadIcon, ClockIcon, CheckCircledIcon, DoubleArrowDownIcon, DoubleArrowUpIcon } from '@radix-ui/react-icons'
 
 import dayjs from 'dayjs'
 import 'dayjs/locale/pt-br.js'
 import { EditableCell } from '@/components/editable-cell'
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 dayjs.locale('pt-br')
 
 const statuses = {
@@ -33,13 +34,32 @@ export const columns: ColumnDef<ReceiptAsMessage>[] = [
         className="translate-y-[2px]"
       />
     ),
-    cell: ({ row }) => (
-      <Checkbox
-        checked={row.getIsSelected()}
-        onCheckedChange={(value) => row.toggleSelected(!!value)}
-        aria-label="Select row"
-        className="translate-y-[2px]"
-      />
+    cell: ({ row, getValue }) => (
+      <>
+        <Checkbox
+          checked={row.getIsSelected()}
+          onCheckedChange={(value) => row.toggleSelected(!!value)}
+          aria-label="Select row"
+          className="translate-y-[2px]"
+        />
+        {row.getCanExpand()
+          ? (
+            <button
+              {...{
+                onClick: row.getToggleExpandedHandler(),
+                style: { cursor: 'pointer' },
+              }}
+            >
+              {row.getIsExpanded()
+                ? <DoubleArrowDownIcon className="ml-2 size-3" />
+                : <DoubleArrowUpIcon className="ml-2 size-3" />}
+            </button>
+            )
+          : (
+              '🔵'
+            )}{' '}
+        {getValue<boolean>()}
+      </>
     ),
     footer: ({ table }) => (
       <Checkbox

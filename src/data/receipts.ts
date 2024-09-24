@@ -12,6 +12,15 @@ export const receiptSchema = z.object({
   documentType: z.number(),
   operationCode: z.number(),
   status: z.string(),
+  items: z.array(z.object({
+    code: z.string(),
+    name: z.string(),
+    purpose: z.number(),
+    costCenter: z.number(),
+    activiy: z.number(),
+    quantity: z.number(),
+    unitPriceInCents: z.number(),
+  })),
 })
 
 export type Receipt = z.infer<typeof receiptSchema>

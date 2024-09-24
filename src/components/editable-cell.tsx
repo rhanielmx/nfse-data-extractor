@@ -27,12 +27,19 @@ function formatCNPJ(cnpj:string) {
   return formattedCNPJ
 }
 
-interface EditableCellProps {
-  cell: Cell<ReceiptAsMessage, unknown>
+interface EditableProps {
   row: Row<ReceiptAsMessage>
   type: 'text' | 'cnpj' | 'currency' | 'date'
   valueName: string
   className?: string
+}
+
+interface EditableCellProps extends EditableProps {
+  cell: Cell<ReceiptAsMessage, unknown>
+}
+
+interface EditableItemProps extends EditableProps {
+  cell: string | number
 }
 
 export function EditableCell(
@@ -89,6 +96,70 @@ export function EditableCell(
         <div className="flex space-x-2" onClick={() => setIsEditing(true)}>
           <span className="max-w-[500px] truncate font-medium">
             {format[type](row.getValue(valueName))}
+          </span>
+        </div>
+        )
+  )
+}
+
+export function EditableItemCell(
+  { cell, row, type = 'text', valueName, className }:EditableItemProps,
+) {
+  const { receipts, setReceipts } = useReceipts()
+  const [isEditing, setIsEditing] = useState(false)
+  const [value, setValue] =
+    useState<string | number>(cell)
+
+  const handleSave = (receiptId:string) => {
+    const indexOfFocusedReceipt = receipts
+      .findIndex((receipt) => receipt.id === receiptId)
+
+    const existingReceipts = [...receipts]
+    existingReceipts[indexOfFocusedReceipt] = {
+      ...receipts[indexOfFocusedReceipt],
+      items: [{
+        ...receipts[indexOfFocusedReceipt].items![0],
+        [valueName]: value,
+      }],
+      // [valueName]: value,
+    }
+    setReceipts(existingReceipts)
+    setIsEditing(false)
+  }
+
+  const handleKeyDown =
+  (event: KeyboardEvent<HTMLInputElement>, rowId: string) => {
+    if (event.key === 'Enter') {
+      handleSave(rowId)
+    }
+  }
+
+  const format = {
+    text: (value: string) => value,
+    cnpj: (value: string) => formatCNPJ(value),
+    currency: (value: number) => ((value ?? 0) / 100).toLocaleString('pt-BR', {
+      style: 'currency',
+      currency: 'BRL',
+    }),
+    date: (value: string) => dayjs(value).format('DD/MM/YYYY'),
+  }
+
+  return (
+    isEditing
+      ? (
+        <Input
+          className={cn('text-sm p-1 h-6', className)}
+          value={value}
+          onChange={(e) => setValue(e.target.value)}
+          onBlurCapture={() => handleSave(row.original.id)}
+          onKeyDown={(event) => handleKeyDown(event, row.original.id)}
+          autoFocus
+        />
+        )
+      : (
+        <div className="flex space-x-2" onClick={() => setIsEditing(true)}>
+          <span className="max-w-[500px] truncate font-medium">
+            {format[type](value)}
           </span>
         </div>
         )

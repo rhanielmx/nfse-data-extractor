@@ -20,7 +20,7 @@ interface DataTableViewOptionsProps<TData> {
 const COLUMN_TITLE_MAPPER: Record<string, string> = {
   supplier: 'Fornecedor',
   customer: 'Empresa',
-  number: 'Número',
+  receiptNumber: 'Número',
   issueDate: 'Data de Emissão',
   accrualDate: 'Data de Competência',
   receiptValueInCents: 'Valor',

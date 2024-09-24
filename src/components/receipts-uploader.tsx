@@ -71,6 +71,7 @@ export function ReceiptsUploader({ onReceiptsChange, setTableSize } : ReceiptsUp
         })
         break
       case 'PROCESS':
+        console.log('[Processed Data]', data)
         onReceiptsChange((previousReceipts) => {
           const existingReceiptIndex =
           previousReceipts.findIndex(receipt => {

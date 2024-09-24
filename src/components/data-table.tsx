@@ -6,14 +6,18 @@ import {
   ColumnFiltersState,
   SortingState,
   VisibilityState,
+  ExpandedState,
   flexRender,
   getCoreRowModel,
   getFacetedRowModel,
   getFacetedUniqueValues,
   getFilteredRowModel,
   getPaginationRowModel,
+  getExpandedRowModel,
   getSortedRowModel,
   useReactTable,
+  type RowSelectionState,
+  type Row,
 } from '@tanstack/react-table'
 
 import {
@@ -30,6 +34,9 @@ import {
 import { DataTableToolbar } from './data-table-toolbar'
 import { DataTablePagination } from './data-table-pagination'
 import type { Receipt } from '@/data/receipts'
+import { EditableItemCell } from './editable-cell'
+import { Button } from './ui/button'
+import { PlusIcon } from '@radix-ui/react-icons'
 
 interface DataTableProps<TData extends Receipt, TValue> {
   columns: ColumnDef<TData, TValue>[]
@@ -49,6 +56,59 @@ export function DataTable<TData extends Receipt, TValue>({
     [],
   )
   const [sorting, setSorting] = React.useState<SortingState>([])
+
+  const renderSubComponent = ({ row }: { row: Row }) => {
+    return (
+      <Table className="pl-4">
+        <TableHeader>
+          <TableRow>
+            <TableHead className="w-10" />
+            <TableHead className="w-20">Código</TableHead>
+            <TableHead>Nome</TableHead>
+            <TableHead className="w-32">Finalidade</TableHead>
+            <TableHead className="w-40">Centro de Custos</TableHead>
+            <TableHead className="w-32">Atividade</TableHead>
+            <TableHead className="w-20">Quantidade</TableHead>
+            <TableHead className="w-20">Valor</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {row.original.items.map((item) => {
+            return (
+              <TableRow key={item.key}>
+                <TableCell>
+                  <button className="mx-auto" onClick={() => alert('Função não implementada!')}>
+                    ➕
+                  </button>
+                </TableCell>
+                <TableCell>
+                  <EditableItemCell cell={item.code} row={row} type="text" valueName="code" />
+                </TableCell>
+                <TableCell>
+                  <EditableItemCell cell={item.name} row={row} type="text" valueName="name" />
+                </TableCell>
+                <TableCell>
+                  <EditableItemCell cell={item.purpose} row={row} type="text" valueName="purpose" />
+                </TableCell>
+                <TableCell>
+                  <EditableItemCell cell={item.costCenter} row={row} type="text" valueName="costCenter" />
+                </TableCell>
+                <TableCell>
+                  <EditableItemCell cell={item.activity} row={row} type="text" valueName="activity" />
+                </TableCell>
+                <TableCell>
+                  <EditableItemCell cell={item.quantity} row={row} type="text" valueName="quantity" />
+                </TableCell>
+                <TableCell>
+                  <EditableItemCell cell={item.unitPriceInCents} row={row} type="currency" valueName="unitPriceInCents" />
+                </TableCell>
+              </TableRow>
+            )
+          })}
+        </TableBody>
+      </Table>
+    )
+  }
 
   const table = useReactTable<TData>({
     data,
@@ -70,6 +130,8 @@ export function DataTable<TData extends Receipt, TValue>({
     getSortedRowModel: getSortedRowModel(),
     getFacetedRowModel: getFacetedRowModel(),
     getFacetedUniqueValues: getFacetedUniqueValues(),
+    getExpandedRowModel: getExpandedRowModel(),
+    getRowCanExpand: () => true,
   })
 
   React.useEffect(() => {
@@ -104,21 +166,38 @@ export function DataTable<TData extends Receipt, TValue>({
             {table.getRowModel().rows?.length
               ? (
                   table.getRowModel().rows.map((row) => (
-                    <TableRow
-                      key={row.id}
-                      data-state={row.getIsSelected() && 'selected'}
-                    >
-                      {row.getVisibleCells().map((cell) => (
-                        <TableCell
-                          key={cell.id}
-                        >
-                          {flexRender(
-                            cell.column.columnDef.cell,
-                            cell.getContext(),
-                          )}
-                        </TableCell>
-                      ))}
-                    </TableRow>
+                    <React.Fragment key={row.id}>
+                      <TableRow
+                        key={row.id}
+                        data-state={row.getIsSelected() && 'selected'}
+                      >
+                        <>
+                          {row.getVisibleCells().map((cell) => (
+                            <TableCell
+                              key={cell.id}
+                            >
+                              {flexRender(
+                                cell.column.columnDef.cell,
+                                cell.getContext(),
+                              )}
+                            </TableCell>
+                          ))}
+                        </>
+                      </TableRow>
+                      {row.getIsExpanded() && (
+                        <tr>
+                          {/* 2nd row is a custom 1 cell row */}
+                          <>
+                            <td colSpan={12}>
+                              {renderSubComponent({ row })}
+                            </td>
+
+                            {console.log(row)}
+                          </>
+                        </tr>
+                      )}
+                    </React.Fragment>
+
                   ))
                 )
               : (

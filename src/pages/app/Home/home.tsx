@@ -11,10 +11,32 @@ export default function Home() {
   const [tableSize, setTableSize] = useState(0)
   const [isButtonDisabled, setIsButtonDisable] = useState(false)
 
+  const handleConvertReceiptsToXML = async () => {
+    const response =
+      await fetch(`http://${import.meta.env.VITE_BASE_URL}/convert-to-xml`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(receipts),
+      })
+
+    if (response.ok) {
+      const blob = await response.blob()
+      const url = window.URL.createObjectURL(blob)
+      const link = document.createElement('a')
+      link.href = url
+      link.setAttribute('download', 'data.xml')
+      document.body.appendChild(link)
+      link.click()
+      link.parentNode.removeChild(link)
+    }
+  }
+
   const [userInfo, setUserInfo] = useState({ username: '', hostname: '' })
 
   useEffect(() => {
-    fetch('http://localhost:3333/api/userinfo')
+    fetch(`http://${import.meta.env.VITE_BASE_URL}/api/userinfo`)
       .then((response) => response.json())
       .then((data) => {
         setUserInfo(data)
@@ -52,7 +74,7 @@ export default function Home() {
           : (
             <Button
               disabled={isButtonDisabled}
-              onClick={() => console.log(receipts)}
+              onClick={async () => await handleConvertReceiptsToXML()}
             >
               Enviar Notas
             </Button>

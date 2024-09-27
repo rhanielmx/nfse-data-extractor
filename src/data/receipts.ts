@@ -13,11 +13,12 @@ export const receiptSchema = z.object({
   operationCode: z.number(),
   status: z.string(),
   items: z.array(z.object({
+    id: z.string(),
     code: z.string(),
     name: z.string(),
     purpose: z.number(),
     costCenter: z.number(),
-    activiy: z.number(),
+    activity: z.number(),
     quantity: z.number(),
     unitPriceInCents: z.number(),
   })),

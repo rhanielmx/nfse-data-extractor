@@ -1,7 +1,7 @@
-import type { ColumnDef, Row } from '@tanstack/react-table'
+import type { ColumnDef } from '@tanstack/react-table'
 import type { ReceiptAsMessage } from './receipts'
 import { Checkbox } from '@/components/ui/checkbox'
-import { DataTableColumnHeader } from '@/components/data-table-colum-header'
+import { DataTableColumnHeader } from '@/components/data-table/data-table-colum-header'
 import { Skeleton } from '@/components/ui/skeleton'
 
 import { UploadIcon, ClockIcon, CheckCircledIcon, DoubleArrowDownIcon, DoubleArrowUpIcon } from '@radix-ui/react-icons'
@@ -9,7 +9,6 @@ import { UploadIcon, ClockIcon, CheckCircledIcon, DoubleArrowDownIcon, DoubleArr
 import dayjs from 'dayjs'
 import 'dayjs/locale/pt-br.js'
 import { EditableCell } from '@/components/editable-cell'
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 dayjs.locale('pt-br')
 
 const statuses = {

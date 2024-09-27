@@ -1,4 +1,4 @@
-import { DataTable } from '@/components/data-table'
+import { DataTable } from '@/components/data-table/data-table'
 import { ReceiptsUploader } from '@/components/receipts-uploader'
 
 import { columns } from '@/data/columns'
@@ -52,7 +52,7 @@ export default function Home() {
           : (
             <Button
               disabled={isButtonDisabled}
-              onClick={() => console.log(isButtonDisabled)}
+              onClick={() => console.log(receipts)}
             >
               Enviar Notas
             </Button>

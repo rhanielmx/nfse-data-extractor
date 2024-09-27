@@ -39,7 +39,7 @@ interface EditableCellProps extends EditableProps {
 }
 
 interface EditableItemProps extends EditableProps {
-  cell: string | number
+  item?: any
 }
 
 export function EditableCell(
@@ -103,34 +103,40 @@ export function EditableCell(
 }
 
 export function EditableItemCell(
-  { cell, row, type = 'text', valueName, className }:EditableItemProps,
+  { row, item, type = 'text', valueName, className }:EditableItemProps,
 ) {
   const { receipts, setReceipts } = useReceipts()
   const [isEditing, setIsEditing] = useState(false)
   const [value, setValue] =
-    useState<string | number>(cell)
+    useState<string | number>(item[valueName])
 
-  const handleSave = (receiptId:string) => {
+  const handleSave = (receiptId:string, itemId: string) => {
     const indexOfFocusedReceipt = receipts
       .findIndex((receipt) => receipt.id === receiptId)
 
+    const indexOfFocusedItem = receipts[indexOfFocusedReceipt].items!
+      .findIndex((item) => item.id === itemId)
+
     const existingReceipts = [...receipts]
+    const existingItems = receipts[indexOfFocusedReceipt].items
+
+    existingItems![indexOfFocusedItem] = {
+      ...existingItems![indexOfFocusedItem],
+      [valueName]: value,
+    }
+
     existingReceipts[indexOfFocusedReceipt] = {
       ...receipts[indexOfFocusedReceipt],
-      items: [{
-        ...receipts[indexOfFocusedReceipt].items![0],
-        [valueName]: value,
-      }],
-      // [valueName]: value,
+      items: existingItems,
     }
     setReceipts(existingReceipts)
     setIsEditing(false)
   }
 
   const handleKeyDown =
-  (event: KeyboardEvent<HTMLInputElement>, rowId: string) => {
+  (event: KeyboardEvent<HTMLInputElement>, rowId: string, itemId: string) => {
     if (event.key === 'Enter') {
-      handleSave(rowId)
+      handleSave(rowId, itemId)
     }
   }
 
@@ -151,8 +157,8 @@ export function EditableItemCell(
           className={cn('text-sm p-1 h-6', className)}
           value={value}
           onChange={(e) => setValue(e.target.value)}
-          onBlurCapture={() => handleSave(row.original.id)}
-          onKeyDown={(event) => handleKeyDown(event, row.original.id)}
+          onBlurCapture={() => handleSave(row.original.id, item.id)}
+          onKeyDown={(event) => handleKeyDown(event, row.original.id, item.id)}
           autoFocus
         />
         )

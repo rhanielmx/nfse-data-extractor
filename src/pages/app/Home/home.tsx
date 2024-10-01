@@ -29,7 +29,7 @@ export default function Home() {
       link.setAttribute('download', 'data.xml')
       document.body.appendChild(link)
       link.click()
-      link.parentNode.removeChild(link)
+      link.parentNode?.removeChild(link)
     }
   }
 

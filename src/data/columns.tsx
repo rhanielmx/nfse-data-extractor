@@ -1,8 +1,8 @@
 import type { ColumnDef } from '@tanstack/react-table'
 import type { ReceiptAsMessage } from './receipts'
 import { Checkbox } from '@/components/ui/checkbox'
-import { DataTableColumnHeader } from '@/components/data-table/data-table-colum-header'
 import { Skeleton } from '@/components/ui/skeleton'
+import { DataTableColumnHeader } from '@/components/data-table/data-table-colum-header'
 
 import { UploadIcon, ClockIcon, CheckCircledIcon, DoubleArrowDownIcon, DoubleArrowUpIcon } from '@radix-ui/react-icons'
 

@@ -19,7 +19,6 @@ Essas foram as principais tecnologias utilizadas no desenvolvimento do projeto.
 | TailwindCSS | 3.4.10        |
 | shadcn/ui   | 0.8.0         |
 | socket.io   | 4.7.5         |
-| socket.io   | S3 e Textract |
 
 ## 🚀 Instalando
 
